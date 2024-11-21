@@ -7,8 +7,20 @@ exports.createCoupon = async (req, res) => {
     if (!type || !details) {
       return res.status(400).json({ message: "Type and details are required." });
     }
+
+    let expiration = undefined;
+    if (expirationDate) {
+      const parsedExpirationDate = new Date(expirationDate);
+      if (isNaN(parsedExpirationDate)) {
+        return res.status(400).json({ message: "Invalid expiration date format." });
+      }
+      expiration = parsedExpirationDate;
+    }
+
     const coupon = new Coupon({ type, details, expirationDate, isActive });
+
     await coupon.save();
+
     res.status(201).json({ message: "Coupon created successfully.", coupon });
   } catch (err) {
     res.status(500).json({ message: "Failed to create coupon.", error: err.message });
@@ -55,6 +67,15 @@ exports.updateCouponById = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    if (updates.expirationDate) {
+      const parsedExpirationDate = new Date(updates.expirationDate);
+      if (isNaN(parsedExpirationDate)) {
+        return res.status(400).json({ message: "Invalid expiration date format." });
+      }
+      updates.expirationDate = parsedExpirationDate;
+    }
+    
     const updatedCoupon = await Coupon.findByIdAndUpdate(id, updates, { new: true });
     if (!updatedCoupon) {
       return res.status(404).json({ message: "Coupon not found." });
