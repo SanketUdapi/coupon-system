@@ -30,8 +30,8 @@ This project implements a coupon management system, allowing support for multipl
    - **Example:** A "Buy 2, Get 1 Free" coupon with a repetition limit of 3 will only apply three times, regardless of additional qualifying items.
 
 5. **Coupon Expiration Dates**
-   - **Description:** Coupons are valid only within a specified date range.
-   - **Example:** A coupon valid from November 1, 2024, to November 30, 2024.
+   - **Description:** Coupons are valid only upto a certain date.
+   - **Example:** A coupon valid from date of creation to to November 30, 2024.
 
 ---
 
