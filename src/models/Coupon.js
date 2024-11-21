@@ -2,7 +2,24 @@ const mongoose = require('mongoose');
 
 const CouponSchema = new mongoose.Schema({
   type: { type: String, enum: ['cart-wise', 'product-wise', 'bxgy'], required: true },
-  details: { type: Object, required: true }, 
+  details: {
+    discount: { type: Number },
+    // for cart-wise
+    threshold: { type: Number }, 
+    // for product-wise
+    product_id: { type: String }, 
+    // for bxgy
+    buy_products: { type: [{
+      product_id: { type: String, required: true },
+      quantity: { type: Number, required: true },
+    }], default:[] }, 
+    get_products: { type: [{
+      product_id: { type: String, required: true },
+      quantity: { type: Number, required: true },
+    }
+    ], default: [] },
+    repition_limit: { type: Number }, 
+  }, 
   expirationDate: { type: Date, default: null },
   isActive: { type: Boolean, default: true },
 });

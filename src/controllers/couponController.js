@@ -113,7 +113,8 @@ exports.getApplicableCoupons = async (req, res) => {
     const cartItems = cart.items.map(item => ({
       product_id: item.product_id,
       quantity: item.quantity,
-      total_price: item.quantity * item.price
+      total_price: item.quantity * item.price,
+      item_price: item.price
     }));
 
     const cartTotal = cartItems.reduce((sum, item) => sum + item.total_price, 0);
@@ -135,7 +136,7 @@ exports.getApplicableCoupons = async (req, res) => {
     };
 
     // get coupons from the DB
-    const coupons = await Coupon.find(query);
+    const coupons = await Coupon.find(query).lean();
 
     // Main logic to filter coupons 
     const applicableCoupons = coupons.map(coupon => {
@@ -169,7 +170,7 @@ exports.getApplicableCoupons = async (req, res) => {
             freeCount += buyCount * getProduct.quantity;
             const cartItem = cartItems.find(item => item.product_id === getProduct.product_id);
             if (cartItem) {
-              discount += Math.min(freeCount, cartItem.quantity) * cartItem.total_price;
+              discount += Math.min(freeCount, cartItem.quantity) * cartItem.item_price;
             }
           });
         }
