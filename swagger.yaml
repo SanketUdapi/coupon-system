@@ -4,7 +4,7 @@ info:
   description: API for managing coupons and applying discounts to shopping carts.
   version: 1.0.0
 servers:
-  - url: https://coupon-system-2q07.onrender.com
+  - url: https://coupon-system-2q07.onrender.com/api
     description: Local Development Server
 paths:
   /coupons:
@@ -26,7 +26,55 @@ paths:
                   description: The type of the coupon.
                 details:
                   type: object
-                  description: Coupon details (varies by type).
+                  oneOf:
+                    - properties:
+                        threshold:
+                          type: number
+                          description: Minimum cart total to apply the coupon.
+                        discount:
+                          type: number
+                          description: Percentage discount for cart-wise coupons.
+                      required: [threshold, discount]
+                      description: Details for `cart-wise` coupons.
+                    - properties:
+                        product_id:
+                          type: string
+                          description: Product ID for which the coupon applies.
+                        discount:
+                          type: number
+                          description: Percentage discount for the product.
+                      required: [product_id, discount]
+                      description: Details for `product-wise` coupons.
+                    - properties:
+                        buy_products:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              product_id:
+                                type: string
+                                description: Product ID to be purchased.
+                              quantity:
+                                type: integer
+                                description: Quantity required to trigger the coupon.
+                        get_products:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              product_id:
+                                type: string
+                                description: Product ID to be given for free or discounted.
+                              quantity:
+                                type: integer
+                                description: Quantity of free or discounted products.
+                        repetition_limit:
+                          type: integer
+                          nullable: true
+                          description: Maximum number of times the coupon can be applied per cart.
+                      required: [buy_products, get_products]
+                      description: Details for `bxgy` coupons.
+                  description: Coupon details based on the type.
                 expirationDate:
                   type: string
                   format: date-time
@@ -287,10 +335,58 @@ components:
           enum: ['cart-wise', 'product-wise', 'bxgy']
         details:
           type: object
-          description: Coupon details.
+          oneOf:
+            - properties:
+                threshold:
+                  type: number
+                  description: Minimum cart total to apply the coupon.
+                discount:
+                  type: number
+                  description: Percentage discount for cart-wise coupons.
+              required: [threshold, discount]
+              description: Details for `cart-wise` coupons.
+            - properties:
+                product_id:
+                  type: string
+                  description: Product ID for which the coupon applies.
+                discount:
+                  type: number
+                  description: Percentage discount for the product.
+              required: [product_id, discount]
+              description: Details for `product-wise` coupons.
+            - properties:
+                buy_products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                        description: Product ID to be purchased.
+                      quantity:
+                        type: integer
+                        description: Quantity required to trigger the coupon.
+                get_products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                        description: Product ID to be given for free or discounted.
+                      quantity:
+                        type: integer
+                        description: Quantity of free or discounted products.
+                repetition_limit:
+                  type: integer
+                  nullable: true
+                  description: Maximum number of times the coupon can be applied per cart.
+              required: [buy_products, get_products]
+              description: Details for `bxgy` coupons.
         expirationDate:
           type: string
           format: date-time
           nullable: true
         isActive:
           type: boolean
+          default: true
