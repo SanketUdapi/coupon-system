@@ -11,13 +11,11 @@ This project implements a coupon management system, allowing support for multipl
    - **Description:** Discounts apply to the entire cart if the total exceeds a certain threshold.
    - **Examples:**
      - 10% off on carts above ₹100.
-     - ₹50 off on carts exceeding ₹500.
 
 2. **Product-wise Coupons**
    - **Description:** Discounts are applied to specific products in the cart.
    - **Examples:**
      - 20% off on Product A.
-     - Buy Product B for ₹100 if its original price is ₹150.
 
 3. **BxGy Coupons (Buy X, Get Y)**
    - **Description:** Buy a specified quantity of products and get certain products for free.
@@ -49,12 +47,14 @@ This project implements a coupon management system, allowing support for multipl
 1. Products have unique identifiers (`product_id`).
 2. Cart items must include `product_id`, `quantity`, and `price` fields.
 3. Only one coupon can be applied to a cart at a time in the current implementation.
+4. Coupon created will always have dicount in percentage.
 
 ---
 
 ### **Limitations**
 1. Coupons cannot be stacked in the current version.
-2. Cannot decide to maximize or minimise discount on basis of product by coupon creators choice
+2. Cannot decide to maximize or minimise discount on basis of product by coupon creators choice.
+3. Does not have flat discount feature. 
 
 ---
 
@@ -63,5 +63,6 @@ This project implements a coupon management system, allowing support for multipl
 2. Introduce **customer-specific coupons** to improve personalization.
 3. Develop a **time-sensitive coupon system** for flash sales.
 4. Create a **centralized rule engine** to handle complex coupon logic and constraints efficiently.
+5. Introduce a **Flat discount** option.
 
 ---
