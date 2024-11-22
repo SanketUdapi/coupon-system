@@ -1,0 +1,296 @@
+openapi: 3.0.1
+info:
+  title: Coupon Management API
+  description: API for managing coupons and applying discounts to shopping carts.
+  version: 1.0.0
+servers:
+  - url: https://coupon-system-2q07.onrender.com
+    description: Local Development Server
+paths:
+  /coupons:
+    post:
+      summary: Create a new coupon
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - details
+              properties:
+                type:
+                  type: string
+                  enum: ['cart-wise', 'product-wise', 'bxgy']
+                  description: The type of the coupon.
+                details:
+                  type: object
+                  description: Coupon details (varies by type).
+                expirationDate:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Expiration date of the coupon in ISO 8601 format. If not provided, the coupon is valid indefinitely.
+                isActive:
+                  type: boolean
+                  default: true
+                  description: Whether the coupon is active.
+      responses:
+        '201':
+          description: Coupon created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  coupon:
+                    $ref: '#/components/schemas/Coupon'
+        '400':
+          description: Invalid request.
+        '500':
+          description: Failed to create the coupon.
+
+    get:
+      summary: Get all coupons with pagination
+      parameters:
+        - name: page_no
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: The page number to retrieve.
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          description: Number of items per page.
+      responses:
+        '200':
+          description: List of coupons.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coupon'
+        '500':
+          description: Failed to fetch coupons.
+
+  /coupons/{id}:
+    get:
+      summary: Get a coupon by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the coupon to retrieve.
+      responses:
+        '200':
+          description: Coupon details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coupon'
+        '404':
+          description: Coupon not found.
+        '500':
+          description: Failed to fetch the coupon.
+
+    put:
+      summary: Update a coupon by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the coupon to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: ['cart-wise', 'product-wise', 'bxgy']
+                details:
+                  type: object
+                  description: Coupon details.
+                expirationDate:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Expiration date of the coupon.
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Coupon updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  coupon:
+                    $ref: '#/components/schemas/Coupon'
+        '404':
+          description: Coupon not found.
+        '500':
+          description: Failed to update the coupon.
+
+    delete:
+      summary: Delete a coupon by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the coupon to delete.
+      responses:
+        '200':
+          description: Coupon deleted successfully.
+        '404':
+          description: Coupon not found.
+        '500':
+          description: Failed to delete the coupon.
+
+  /coupons/applicable:
+    post:
+      summary: Get applicable coupons for a cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cart
+              properties:
+                cart:
+                  type: object
+                  properties:
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          product_id:
+                            type: string
+                          quantity:
+                            type: integer
+                            minimum: 1
+                          price:
+                            type: number
+      responses:
+        '200':
+          description: List of applicable coupons.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  applicable_coupons:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        coupon_id:
+                          type: string
+                        type:
+                          type: string
+                        discount:
+                          type: number
+        '400':
+          description: Invalid cart format.
+        '500':
+          description: Failed to fetch applicable coupons.
+
+  /coupons/{id}/apply:
+    post:
+      summary: Apply a specific coupon to a cart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the coupon to apply.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cart
+              properties:
+                cart:
+                  type: object
+                  properties:
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          product_id:
+                            type: string
+                          quantity:
+                            type: integer
+                            minimum: 1
+                          price:
+                            type: number
+      responses:
+        '200':
+          description: Coupon applied successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated_cart:
+                    type: object
+                  total_price:
+                    type: number
+                  total_discount:
+                    type: number
+                  final_price:
+                    type: number
+        '400':
+          description: Invalid cart format.
+        '404':
+          description: Coupon not found or inactive.
+        '500':
+          description: Failed to apply the coupon.
+
+components:
+  schemas:
+    Coupon:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: ['cart-wise', 'product-wise', 'bxgy']
+        details:
+          type: object
+          description: Coupon details.
+        expirationDate:
+          type: string
+          format: date-time
+          nullable: true
+        isActive:
+          type: boolean
